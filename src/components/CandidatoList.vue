@@ -184,6 +184,9 @@ onMounted(() => {
     <div>
       <router-link class="router-link" to="/votantes">Ver Candidatos para Votar</router-link>
     </div>
+    <div>
+      <router-link class="router-link" to="/agregar">Registrar Candidato</router-link>
+    </div>
   </div>
 </template>
 
