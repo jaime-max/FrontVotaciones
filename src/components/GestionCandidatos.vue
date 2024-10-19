@@ -1,12 +1,13 @@
 <script setup>
 import { ref } from 'vue';
 import axios from 'axios';
+import imageCompression from 'browser-image-compression'; // Importa la librería de compresión
 
 const nuevoCandidato = ref({
   nombre: '',
   apellido: '',
   curso: '',
-  file: null ,// Agregar el campo para el archivo
+  file: null, // Agregar el campo para el archivo
   partido: ''
 }); // Datos del nuevo candidato
 
@@ -22,7 +23,6 @@ const agregarCandidato = async () => {
   formData.append('file', nuevoCandidato.value.file); // Agregar archivo al FormData
   formData.append('partido', nuevoCandidato.value.partido);
 
-
   try {
     // Envía la solicitud al backend
     const response = await axios.post('https://votaciones-9614.onrender.com/api/candidatos', formData, {
@@ -30,30 +30,44 @@ const agregarCandidato = async () => {
         'Content-Type': 'multipart/form-data' // Importante para enviar archivos
       }
     });
-    // Asegúrate de que el response.data contenga el candidato creado con la foto
     candidatos.value.push(response.data); // Añadir el nuevo candidato a la lista
 
-    // Limpiar cada campo de nuevoCandidato manualmente
+    // Limpiar los campos
     nuevoCandidato.value.nombre = '';
     nuevoCandidato.value.apellido = '';
     nuevoCandidato.value.curso = '';
-    nuevoCandidato.value.file = null; // Limpiar el archivo
+    nuevoCandidato.value.file = null;
     nuevoCandidato.value.partido = '';
 
     // Limpiar el campo de archivo en el input
     if (fileInput.value) {
-      fileInput.value.value = ''; // Esto limpia visualmente el input de archivo
+      fileInput.value.value = '';
     }
   } catch (error) {
     console.error('Error al agregar candidato:', error);
   }
 };
 
-const handleFileUpload = (event) => {
-  nuevoCandidato.value.file = event.target.files[0]; // Captura el archivo seleccionado
-};
+// Función para manejar la compresión de la imagen y asignarla al candidato
+const handleFileUpload = async (event) => {
+  let file = event.target.files[0];
 
+  // Opciones para la compresión de la imagen
+  const options = {
+    maxSizeMB: 1, // Tamaño máximo en MB
+    maxWidthOrHeight: 1280, // Dimensiones máximas
+    useWebWorker: true // Mejorar rendimiento
+  };
+
+  try {
+    const compressedFile = await imageCompression(file, options);
+    nuevoCandidato.value.file = compressedFile; // Usa la imagen comprimida
+  } catch (error) {
+    console.error('Error al comprimir la imagen:', error);
+  }
+};
 </script>
+
 
 <template>
   <div class="gestion-container">

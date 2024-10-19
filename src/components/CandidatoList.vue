@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue';
 import axios from 'axios';
+import imageCompression from 'browser-image-compression'; // Importa la librería de compresión
 
 const candidatos = ref([]);
 const searchQuery = ref('');
@@ -25,6 +26,24 @@ const obtenerCandidatos = async () => {
     ordenarCandidatos();
   } catch (error) {
     console.error("Error al obtener los candidatos:", error);
+  }
+};
+
+const onFileChange = async (event) => {
+  let file = event.target.files[0];
+
+  // Opciones para la compresión de la imagen
+  const options = {
+    maxSizeMB: 5, // Tamaño máximo en MB
+    maxWidthOrHeight: 1280, // Dimensiones máximas
+    useWebWorker: true // Mejorar rendimiento
+  };
+
+  try {
+    const compressedFile = await imageCompression(file, options);
+    fotoActualizada = compressedFile; // Usa la imagen comprimida
+  } catch (error) {
+    console.error('Error al comprimir la imagen:', error);
   }
 };
 
@@ -66,10 +85,6 @@ const cerrarModal = () => {
   mostrarModal.value = false;
 };
 
-const onFileChange = (event) => {
-  fotoActualizada = event.target.files[0];
-};
-
 const editarCandidato = async () => {
   const formData = new FormData();
   formData.append('nombre', candidatoSeleccionado.value.nombre);
@@ -78,14 +93,13 @@ const editarCandidato = async () => {
   formData.append('partido', candidatoSeleccionado.value.partido);
 
   if (fotoActualizada) {
-    formData.append('file', fotoActualizada);
+    formData.append('file', fotoActualizada); // Usa la imagen comprimida
   }
 
   try {
     await axios.put(`https://votaciones-9614.onrender.com/api/candidatos/${candidatoSeleccionado.value.id}`, formData);
     cerrarModal();
     obtenerCandidatos();
-
     candidatoSeleccionado.value = {};
     fotoActualizada = null;
   } catch (error) {
@@ -97,8 +111,8 @@ onMounted(() => {
   obtenerCandidatos();
   obtenerTotalVotos();
 });
-
 </script>
+
 
 <template>
   <div class="candidato-container">
