@@ -95,7 +95,6 @@ onMounted(() => {
         <td>{{ candidato.curso }}</td>
         <td>{{ candidato.partido }}</td>
         <td>
-          <button class="vote-button" @click="confirmarVoto(candidato)">Votar</button>
         </td>
       </tr>
       </tbody>
