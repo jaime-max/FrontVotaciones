@@ -76,7 +76,6 @@ onMounted(() => {
         <th>Apellido</th>
         <th>Curso</th>
         <th>Partido</th>
-        <th>Acciones</th>
       </tr>
       </thead>
       <tbody>
